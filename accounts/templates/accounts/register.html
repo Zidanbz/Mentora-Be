@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Daftar - Mentora</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+            max-width: 600px;
+            margin: auto;
+            padding-top: 50px;
+        }
+
+        .form-container {
+            border: 1px solid #ccc;
+            padding: 2em;
+            border-radius: 8px;
+        }
+
+        .errorlist {
+            color: red;
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h2>Buat Akun Mentora Anda</h2>
+        <p>Daftarkan perusahaan Anda dan mulailah mengelola bisnis dengan cerdas.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Daftar Sekarang</button>
+        </form>
+    </div>
+</body>
+
+</html>

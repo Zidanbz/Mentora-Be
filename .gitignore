@@ -1,0 +1,25 @@
+# File Bytecode
+*.pyc
+__pycache__/
+
+# File-file Editor
+.vscode/
+.idea/
+
+# File Database Lokal
+db.sqlite3
+/db.sqlite3-journal
+
+# File Environment
+.env
+
+# Folder Virtual Environment
+/venv/
+
+# File Media & Static dari User
+/media/
+/static_root/
+
+# File-file OS
+.DS_Store
+Thumbs.db

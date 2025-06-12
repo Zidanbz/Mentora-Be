@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Mentora</title>
+</head>
+
+<body>
+    <h1>Selamat Datang di Dashboard Mentora!</h1>
+    {% if user.is_authenticated %}
+    <p>
+        Halo, <strong>{{ user.username }}</strong>!
+        Anda login sebagai pemilik <strong>{{ user.company.name }}</strong>.
+        <a href="{% url 'logout' %}">(Logout)</a>
+    </p>
+    {% else %}
+    <p>Anda belum login. <a href="{% url 'login' %}">Silakan login di sini.</a></p>
+    {% endif %}
+    <h2>Daftar Produk Anda:</h2>
+
+    <ul>
+        {% for product in products %}
+        <li>{{ product.name }} - Rp {{ product.price }}</li>
+        {% empty %}
+        <li>Anda belum memiliki produk.</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
