@@ -134,3 +134,25 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     # "https://nama-proyek-frontend-anda.vercel.app", # <-- Ganti ini nanti
 ]
+
+# ==============================================================================
+# KONFIGURASI DJANGO REST FRAMEWORK (DRF)
+# ==============================================================================
+
+# TAMBAHKAN BLOK BARU INI DI BAGIAN PALING BAWAH FILE
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser',
+        
+        # PERBAIKAN: Nama kelas yang benar adalah 'FileUploadParser' untuk menangani data mentah,
+        # atau kita bisa juga membuat parser kustom jika perlu.
+        # Untuk kasus menerima teks biasa di body, DRF tidak punya parser bawaan.
+        # Namun, kita bisa atasi ini di level view. Untuk sekarang, kita hapus parser yang salah.
+    ]
+}

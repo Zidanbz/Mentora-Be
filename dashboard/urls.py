@@ -10,6 +10,9 @@ urlpatterns = [
     path('<int:pk>/', views.product_detail_api, name='product-detail-api'),
        # URL BARU untuk chatbot
     path('chatbot/', views.chatbot_api, name='chatbot-api'),
+    # URL BARU untuk Riwayat Chat
+    path('chat-history/', views.chat_history_api, name='chat-history-api'),
     # URL BARU untuk halaman upload
     path('upload-products/', views.upload_products_view, name='upload-products'),
+    
 ]

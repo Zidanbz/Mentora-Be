@@ -13,3 +13,18 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.company.name})"
+    
+    # === TAMBAHKAN MODEL BARU DI BAWAH INI ===
+class ChatHistory(models.Model):
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE)
+    prompt = models.TextField()
+    response = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chat for {self.company.name} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+    class Meta:
+        # Mengurutkan riwayat chat dari yang terbaru ke terlama
+        ordering = ['-created_at']
+        verbose_name_plural = "Chat Histories"

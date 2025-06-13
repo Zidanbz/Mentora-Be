@@ -11,8 +11,8 @@ from rest_framework.permissions import IsAuthenticated # <-- 3. Import IsAuthent
 from rest_framework.response import Response
 
 # Imports untuk aplikasi ini
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, ChatHistory
+from .serializers import ProductSerializer, ChatHistorySerializer
 from .chatbot_service import run_chatbot_conversation
 from .forms import UploadFileForm
 import pandas as pd
@@ -75,11 +75,40 @@ def product_detail_api(request, pk):
 
 # ... (chatbot_api akan kita amankan di langkah selanjutnya) ...
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def chatbot_api(request):
-    user_prompt = request.data.get('prompt', '')
+    """
+    API endpoint untuk chatbot AI yang aman dan menyimpan riwayat.
+    """
+    user_prompt = ""
+    
+    if isinstance(request.data, dict):
+        user_prompt = request.data.get('prompt', '')
+    elif isinstance(request.data, str):
+        user_prompt = request.data
+    
+    user_prompt = user_prompt.strip()
+
     if not user_prompt:
-        return Response({"error": "Prompt tidak boleh kosong."}, status=status.HTTP_400_BAD_REQUEST)
-    chatbot_response = run_chatbot_conversation(user_prompt)
+        return Response(
+            {"error": "Prompt tidak boleh kosong."}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 1. Ambil perusahaan dari user yang sedang login
+    user_company = request.user.company
+
+    # 2. PERBAIKAN UTAMA: Kirim 'company' sebagai argumen
+    chatbot_response = run_chatbot_conversation(user_prompt=user_prompt, company=user_company)
+
+    # 3. Simpan percakapan ke database
+    ChatHistory.objects.create(
+        company=user_company,
+        prompt=user_prompt,
+        response=chatbot_response
+    )
+
+    # 4. Kembalikan jawaban
     return Response({"response": chatbot_response})
 
 
@@ -123,3 +152,25 @@ def upload_products_view(request):
         form = UploadFileForm()
     
     return render(request, 'dashboard/upload_page.html', {'form': form})
+
+# ================================================
+# === CUKUP SALIN DAN TEMPEL BLOK DI BAWAH INI ===
+# ================================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def chat_history_api(request):
+    """
+    API untuk mengambil daftar riwayat percakapan chatbot
+    milik perusahaan yang sedang login.
+    """
+    # 1. Ambil perusahaan dari user yang sedang login
+    user_company = request.user.company
+
+    # 2. Filter riwayat chat berdasarkan perusahaan
+    history = ChatHistory.objects.filter(company=user_company)
+
+    # 3. Ubah data menjadi JSON menggunakan serializer
+    serializer = ChatHistorySerializer(history, many=True)
+
+    # 4. Kembalikan data
+    return Response(serializer.data)
