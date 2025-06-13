@@ -132,6 +132,7 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://mentora-be.onrender.com"
     # "https://nama-proyek-frontend-anda.vercel.app", # <-- Ganti ini nanti
 ]
 
