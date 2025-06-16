@@ -1,5 +1,6 @@
 # dashboard/views.py
 
+from datetime import timezone
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # <-- 1. Import decorator login_required
@@ -10,12 +11,15 @@ from rest_framework.decorators import api_view, permission_classes # <-- 2. Impo
 from rest_framework.permissions import IsAuthenticated # <-- 3. Import IsAuthenticated
 from rest_framework.response import Response
 
+from dashboard.chatbot_tools import CompanyAwareTools
+
 # Imports untuk aplikasi ini
 from .models import Product, ChatHistory
 from .serializers import ProductSerializer, ChatHistorySerializer
 from .chatbot_service import run_chatbot_conversation
 from .forms import UploadFileForm
 import pandas as pd
+
 
 
 # === API Views (Sekarang Aman) ===
@@ -174,3 +178,29 @@ def chat_history_api(request):
 
     # 4. Kembalikan data
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def performance_summary_api(request):
+    """
+    API untuk menghasilkan ringkasan performa bisnis
+    untuk perusahaan yang sedang login.
+    """
+    user_company = request.user.company
+    
+    # Buat instance 'kotak perkakas' untuk perusahaan ini
+    tools = CompanyAwareTools(company=user_company)
+    
+    # Kumpulkan data dari berbagai alat
+    product_count = tools.get_product_count()
+    sales_trend_analysis = tools.analyze_weekly_sales_trend()
+    
+    # Siapkan data respons
+    summary_data = {
+        'company_name': user_company.name,
+        'total_products': product_count,
+        'weekly_sales_trend': sales_trend_analysis,
+        'generated_at': timezone.now()
+    }
+    
+    return Response(summary_data)

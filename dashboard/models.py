@@ -28,3 +28,12 @@ class ChatHistory(models.Model):
         # Mengurutkan riwayat chat dari yang terbaru ke terlama
         ordering = ['-created_at']
         verbose_name_plural = "Chat Histories"
+
+class Sale(models.Model):
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    sale_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} for {self.company.name}"

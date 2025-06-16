@@ -37,6 +37,7 @@ def run_chatbot_conversation(user_prompt: str, company: Company) -> str:
             tool_instance.get_product_count,
             tool_instance.get_product_list,
             tool_instance.get_most_expensive_product,
+            tool_instance.analyze_weekly_sales_trend,
         ],
         safety_settings={
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,

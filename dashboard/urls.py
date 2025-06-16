@@ -14,5 +14,5 @@ urlpatterns = [
     path('chat-history/', views.chat_history_api, name='chat-history-api'),
     # URL BARU untuk halaman upload
     path('upload-products/', views.upload_products_view, name='upload-products'),
-    
+    path('performance-summary/', views.performance_summary_api, name='performance-summary-api'),
 ]
