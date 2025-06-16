@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 
-# 1. Pindahkan semua import ke bagian atas
+# 1. Semua import berada di atas
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,17 +16,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # PENGATURAN KUNCI UNTUK PRODUKSI & DEVELOPMENT
 # ==============================================================================
 
-# Ambil SECRET_KEY dari environment variable. Jangan pernah hardcode di sini.
+# Mengambil SECRET_KEY dari environment variable.
+# Fallback ke kunci yang tidak aman HANYA untuk development lokal.
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-for-development')
 
-# DEBUG akan otomatis False saat di-deploy di Render,
-# dan True saat dijalankan di komputer lokal.
+# DEBUG akan otomatis False saat di-deploy di Render.
 DEBUG = 'RENDER' not in os.environ
 
-# Atur host yang diizinkan secara dinamis
 ALLOWED_HOSTS = []
 
-# Untuk deployment di Render, otomatis tambahkan hostname Render
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -42,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # Tambahkan WhiteNoise di bawah staticfiles agar bisa melayani file CSS Admin
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     
     # 3rd Party Apps
@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # Middleware CORS diletakkan sedekat mungkin ke atas
+    # Tambahkan middleware WhiteNoise di posisi kedua
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,6 +67,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'mentoraconfig.urls'
+WSGI_APPLICATION = 'mentoraconfig.wsgi.application'
 
 TEMPLATES = [
     {
@@ -82,22 +84,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mentoraconfig.wsgi.application'
-
-
 # ==============================================================================
 # DATABASE
 # ==============================================================================
 
 DATABASES = {
     'default': dj_database_url.config(
-        # Mengambil DATABASE_URL dari environment variable saat di Render
-        # Jika tidak ada, gunakan koneksi ke database lokal Anda
         default=f'postgresql://{os.getenv("DB_USER", "mentorauser")}:{os.getenv("DB_PASSWORD")}@localhost/mentoradb',
         conn_max_age=600
     )
 }
-
 
 # ==============================================================================
 # PASSWORD & INTERNATIONALIZATION
@@ -110,37 +106,37 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Makassar' # Anda bisa sesuaikan zona waktu
+LANGUAGE_CODE = 'id-id'
+TIME_ZONE = 'Asia/Makassar'
 USE_I18N = True
 USE_TZ = True
 
 
 # ==============================================================================
-# STATIC FILES & Lainnya
+# STATIC FILES (PENTING UNTUK TAMPILAN ADMIN)
 # ==============================================================================
 
 STATIC_URL = 'static/'
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Menentukan folder pusat tempat `collectstatic` akan mengumpulkan semua file
+STATIC_ROOT = BASE_DIR / "staticfiles"
+# Menambahkan metode penyimpanan WhiteNoise yang efisien
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Pengaturan Redirect Login & Logout
+
+# ==============================================================================
+# PENGATURAN LAINNYA
+# ==============================================================================
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/dashboard/upload-products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Pengaturan CORS untuk frontend Next.js Anda
-# Ganti dengan URL Vercel Anda nanti
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://mentora-be.onrender.com"
-    # "https://nama-proyek-frontend-anda.vercel.app", # <-- Ganti ini nanti
+    # "https://nama-frontend-anda.vercel.app", # Ganti ini nanti setelah frontend di-deploy
 ]
 
-# ==============================================================================
-# KONFIGURASI DJANGO REST FRAMEWORK (DRF)
-# ==============================================================================
-
-# TAMBAHKAN BLOK BARU INI DI BAGIAN PALING BAWAH FILE
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -152,13 +148,5 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
-        'rest_framework.parsers.FileUploadParser',
-        
-        # PERBAIKAN: Nama kelas yang benar adalah 'FileUploadParser' untuk menangani data mentah,
-        # atau kita bisa juga membuat parser kustom jika perlu.
-        # Untuk kasus menerima teks biasa di body, DRF tidak punya parser bawaan.
-        # Namun, kita bisa atasi ini di level view. Untuk sekarang, kita hapus parser yang salah.
     ]
 }
-
-
