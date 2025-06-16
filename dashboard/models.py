@@ -5,7 +5,7 @@ from django.db import models
 
 class Product(models.Model):
     # UBAH BARIS INI
-    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE)
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, db_index=True)
 
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -16,7 +16,7 @@ class Product(models.Model):
     
     # === TAMBAHKAN MODEL BARU DI BAWAH INI ===
 class ChatHistory(models.Model):
-    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE)
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, db_index=True)
     prompt = models.TextField()
     response = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -30,7 +30,7 @@ class ChatHistory(models.Model):
         verbose_name_plural = "Chat Histories"
 
 class Sale(models.Model):
-    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE)
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, db_index=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     sale_date = models.DateTimeField(auto_now_add=True)
