@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # 3rd Party Apps
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
 
     # Aplikasi Anda
     'accounts',
@@ -148,5 +149,13 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Mentora API',
+    'DESCRIPTION': 'Dokumentasi API untuk platform Mentora, sebuah asisten bisnis AI untuk UMKM dan Startup.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
