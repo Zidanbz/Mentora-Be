@@ -4,6 +4,8 @@ from datetime import timezone
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required # <-- 1. Import decorator login_required
+from .chatbot_tools import CompanyAwareTools
+from django.utils import timezone
 
 # Imports untuk DRF
 from rest_framework import status
@@ -204,3 +206,24 @@ def performance_summary_api(request):
     }
     
     return Response(summary_data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def proactive_suggestion_api(request):
+    """
+    API untuk menghasilkan satu saran bisnis proaktif
+    berdasarkan data perusahaan yang sedang login.
+    """
+    user_company = request.user.company
+    
+    # Buat instance 'kotak perkakas' untuk perusahaan ini
+    tools = CompanyAwareTools(company=user_company)
+    
+    # Panggil alat baru kita untuk mendapatkan saran
+    suggestion = tools.get_proactive_suggestion()
+    
+    # Kembalikan saran dalam format JSON
+    return Response({
+        'suggestion': suggestion,
+        'generated_at': timezone.now()
+    })
